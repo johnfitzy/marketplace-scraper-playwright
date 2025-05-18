@@ -20,3 +20,19 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+
+  redis:
+    image: bitnami/redis:latest
+    container_name: redis
+    ports:
+      - 6379:6379
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes # Allows Redis to start without a password TODO: not in prod
+      - REDIS_AOF_ENABLED=yes
+    volumes:
+      - redis_data:/bitnami/redis/data
+    networks:
+      - scraper
+
+volumes:
+  redis_data:
