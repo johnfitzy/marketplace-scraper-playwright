@@ -169,7 +169,7 @@ async def worker(name, queue, context):
             job['last_finished'] = round(time_end, 2)
 
             for item in json_result:
-                key = f"{item['title']}_{item['price']}_{item['location']}"
+                key = f"{item['title']}_{item['price']}_{item['location']}".replace("", "_").replace(",", "").lower()
                 item['job_runtime'] = round(time_end - time_start, 2)
                 item['job_time_since_last_finished'] = time_since_last_finished
                 await kafka.send(config.TOPIC_SCRAPED_ITEMS, key=key, value=item)
