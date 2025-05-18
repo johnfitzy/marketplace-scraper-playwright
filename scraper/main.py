@@ -21,7 +21,8 @@ async def main():
     jobs_list = await get_strategy_from_env().get_scrape_jobs()
 
     consumers = [
-        asyncio.create_task(worker(f"worker-{worker_id}", queue, contexts[worker_id % config.NUM_CONTEXTS])) for worker_id in range(config.NUM_WORKERS)
+        asyncio.create_task(worker(f"worker-{worker_id}", queue, contexts[worker_id % config.NUM_CONTEXTS])) for worker_id in range(
+            config.NUM_WORKERS)
     ]
 
     await job_scheduler(jobs_list, queue)
