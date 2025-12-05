@@ -21,21 +21,10 @@ async def main():
     jobs_list = await get_strategy_from_env().get_scrape_jobs()
 
     consumers = [
-        asyncio.create_task(worker(f"worker-{worker_id}", queue, contexts[worker_id % config.NUM_CONTEXTS])) for worker_id in range(config.NUM_WORKERS)
+        asyncio.create_task(worker(f"worker-{worker_id}", queue, contexts[worker_id % config.NUM_CONTEXTS])) for worker_id in range(
+            config.NUM_WORKERS)
     ]
 
     await job_scheduler(jobs_list, queue)
 
 asyncio.run(main())
-#
-# logger.info("Starting application...")
-#
-# browser = await async_playwright().start().chromium.launch(headless=False)
-# contexts = [await browser.new_context() for _ in range(config.NUM_CONTEXTS)]
-#
-# queue = asyncio.Queue(maxsize=config.MAX_QUEUE_SIZE)
-# jobs = await get_strategy_from_env().get_scrape_jobs()
-#
-# consumers = [
-#     asyncio.create_task(consumer(f"worker-{i}", queue, contexts[i % config.NUM_CONTEXTS])) for i in range(config.NUM_WORKERS)
-# ]

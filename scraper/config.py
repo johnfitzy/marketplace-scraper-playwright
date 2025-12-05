@@ -18,4 +18,8 @@ JOB_FILE_PATH = os.getenv("JOB_FILE_PATH", "job_params/search_params_subset.txt"
 VIEWPORT_WIDTH = int(os.environ.get("VIEWPORT_WIDTH", 1920))
 VIEWPORT_HEIGHT = int(os.environ.get("VIEWPORT_HEIGHT", 1080))
 
+# Kafka
+BOOTSTRAP_SERVERS = os.getenv("BOOTSTRAP_SERVERS")
+TOPIC_SCRAPED_ITEMS = os.getenv("TOPIC_SCRAPED_ITEMS")
+
 

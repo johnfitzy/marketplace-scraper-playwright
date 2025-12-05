@@ -1,13 +1,12 @@
-import time
 import json
 import re
 import time
-from datetime import datetime
 
 from bs4 import BeautifulSoup
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError, expect
 
 import config
+from kafka import KafkaPublisher
 from logging_config import logger
 
 
@@ -32,7 +31,7 @@ def extract_and_filter_links(soup, job, not_include=None):
             text = '\n'.join(link.stripped_strings)
             img_tag = link.find('img')
             image_url = img_tag['src'] if img_tag else None
-            #TODO; this is buggy
+            #TODO; this is buggy if you don't add an not_include case!
             if not_include is not None and not_include.lower() not in text.lower():
                 links.append({
                     'text': text,
@@ -139,10 +138,11 @@ async def scrape(job, context):
 # Page is closed after the job is done
 async def worker(name, queue, context):
 
+    kafka = KafkaPublisher()
+    await kafka.start()
 
     while True:
         job = await queue.get()
-
         logger.info(f"{name} picked up scrape job: {job}")
 
         if config.TRACE_ENABLED:
@@ -154,27 +154,37 @@ async def worker(name, queue, context):
             time_start = time.time()
 
             soup = await scrape(job, context)
+            if soup is None:
+                logger.warning(f"{name}: Skipping job due to scrape failure: {job}")
+                continue
+
             links = extract_and_filter_links(soup, job, "case")
             json_result = parse_links_to_json(links)
 
             time_end = time.time()
-
             time_since_last_finished = None
+
             if job.get('last_finished') is not None:
                 time_since_last_finished = round(time_end - job['last_finished'])
-                job['last_finished'] = round(time_end, 2)
+            job['last_finished'] = round(time_end, 2)
 
-            else:
-                job['last_finished'] = time_end
+            for item in json_result:
+                key = f"{item['title']}_{item['price']}_{item['location']}".replace("", "_").replace(",", "").lower()
+                item['job_runtime'] = round(time_end - time_start, 2)
+                item['job_time_since_last_finished'] = time_since_last_finished
+                await kafka.send(config.TOPIC_SCRAPED_ITEMS, key=key, value=item)
 
+            logger.info(f'Finished! runtime: {round(time_end - time_start, 2)} time since last finished {time_since_last_finished}\n{json.dumps(json_result)}')
 
-            print(f'Finished! runtime: {round(time_end - time_start, 2)} time since last finished {time_since_last_finished}\n {json.dumps(json_result)}')
-            
-            # print(json.dumps(json_result, 2) + "\n")
+        except Exception as e:
+            logger.error(f"{name}: Unexpected error during job {job}: {e}", exc_info=True)
+
         finally:
             queue.task_done()
 
             if config.TRACE_ENABLED:
-
-                job_dets  = f'{job['city']}_{job['country'].strip().replace(" ", "")}_{job["product"].strip().replace(" ", "")}_min_{job["min_price"]}_max_{job["max_price"]}_{time_start}'
-                await context.tracing.stop(path = f'{config.TRACE_PATH}/{job_dets}.zip')
+                job_dets = f'{job["city"]}_{job["country"].strip().replace(" ", "")}_{job["product"].strip().replace(" ", "")}_min_{job["min_price"]}_max_{job["max_price"]}_{time_start}'
+                try:
+                    await context.tracing.stop(path=f'{config.TRACE_PATH}/{job_dets}.zip')
+                except Exception as e:
+                    logger.warning(f"{name}: Failed to write trace for job {job_dets}: {e}")
