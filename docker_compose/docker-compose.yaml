@@ -7,7 +7,7 @@ networks:
 
 services:
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: 'bitnamilegacy/kafka:3.3.2' #TODO; sort this out later
     networks:
       - scraper
     ports:
@@ -27,7 +27,7 @@ services:
     ports:
       - 6379:6379
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes # Allows Redis to start without a password TODO: not in prod
+      - ALLOW_EMPTY_PASSWORD=yes # Allows Redis to start without a password (local dev set up only so doesn't matter)
       - REDIS_AOF_ENABLED=yes
     volumes:
       - redis_data:/bitnami/redis/data
