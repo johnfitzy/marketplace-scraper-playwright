@@ -7,6 +7,8 @@ import {
     parseLinksToJson,
 } from "../scrape/scraper.js";
 
+import {pushResults} from "../pushResults/pushResults.js";
+
 const sema = new Sema(config.worker.maxConcurrency);
 
 // TODO; basic blocking run make it properly async
@@ -46,12 +48,16 @@ export async function run() {
     const links = await extractAndFilterLinks(page, job);
 
     // TODO; remove later
-    console.log(links);
+    // console.log(links);
 
     const results = parseLinksToJson(links);
 
+    await pushResults(results)
+
+
+
     // TODO; remove later
-    console.log(results);
+    // console.log(results);
 
     // Close the page
     page.close();

@@ -19,4 +19,10 @@ export const config = {
             process.env.BASE_URL || "https://www.facebook.com/marketplace/search",
         searchRadius: 100,
     },
+    redis: {
+        url: process.env.REDIS_URL || "localhost",
+        port: Number(process.env.REDIS_PORT || 6379),
+        deDupTTL: Number(process.env.REDIS_DUP_TTL || 120), // seconds
+        resultQueueName: process.env.REDIS_RESULT_QUEUE_NAME || "queue:results"
+    }
 };
