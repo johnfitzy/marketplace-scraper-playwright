@@ -1,7 +1,0 @@
-playwright
-beautifulsoup4
-pandas
-requests
-python-dotenv
-aiofiles
-aiokafka
