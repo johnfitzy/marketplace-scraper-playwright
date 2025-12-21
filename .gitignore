@@ -3,3 +3,50 @@
 venv
 __pycache__/
 *.png
+
+# --- Node dependencies ---
+node_modules/
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Environment files ---
+.env
+.env.*
+!.env.example
+
+# --- Playwright artifacts ---
+playwright-report/
+test-results/
+.trace/
+videos/
+screenshots/
+
+# --- Build / dist output ---
+dist/
+build/
+out/
+
+# --- Coverage ---
+coverage/
+.nyc_output/
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Misc ---
+*.pid
+*.seed
+*.pid.lock
