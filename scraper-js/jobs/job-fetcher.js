@@ -280,5 +280,7 @@ const tmpHardCodedJobs = [
 
 export async function next() {
   await new Promise((res) => setTimeout(res, 2)); // simulate some DB/Redis/Kafka wait time
-  return tmpHardCodedJobs[Math.floor(Math.random() * tmpHardCodedJobs.length)];
+  const job = tmpHardCodedJobs[Math.floor(Math.random() * tmpHardCodedJobs.length)];
+  console.log(`Requested new job ${JSON.stringify(job)}`);
+  return job;
 }

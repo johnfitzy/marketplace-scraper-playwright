@@ -128,8 +128,6 @@ export async function scrollUntilBottom(
 }
 
 export async function preparePageForDataExtraction(job) {
-  console.log(`Processing job ${JSON.stringify(job)}`);
-
   const page = await browserManager.page();
 
   await page.goto(
