@@ -30,7 +30,6 @@ async function isDuplicate(result) {
         }
     );
 
-    console.log(`${added}: ${hashedResult}`);
     return added === "OK";
 }
 
